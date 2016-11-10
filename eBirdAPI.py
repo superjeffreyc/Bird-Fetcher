@@ -8,7 +8,8 @@ http://amzn.to/1LGWsLG
 """
 
 from __future__ import print_function
-
+import json
+import urllib2
 
 # --------------- Helpers that build all of the responses ----------------------
 
@@ -82,10 +83,24 @@ def get_bird_data(intent, session):
     should_end_session = False
 
     if 'Location' in intent['slots']:
-        favorite_color = intent['slots']['Location']['value']
-        session_attributes = create_favorite_color_attributes(favorite_color)
-        speech_output = "I now know your city is " + \
-                        favorite_color + \
+        city = intent['slots']['Location']['value']
+        session_attributes = create_favorite_color_attributes(city)
+        mapsURL = "https://maps.googleapis.com/maps/api/geocode/json?address="
+        mapsURL += city
+        locationData = json.load(urllib2.urlopen(mapsURL))
+        latitude = locationData['results'][0]['geometry']['location']['lat']
+        longitude = locationData['results'][0]['geometry']['location']['lng']
+        eBirdURL = "https://ebird.org/ws1.1/data/obs/geo/recent?lng=%f&lat=%f&maxResults=10&fmt=json" % (longitude, latitude)
+        eBirdData = json.load(urllib2.urlopen(eBirdURL))
+        
+        birdSightings = ""
+        for sighting in eBirdData:
+            birdSightings += sighting['comName']
+            birdSightings += ", "
+
+            
+        speech_output = "The ten most recent birds seen in " + city + " are " + \
+                        birdSightings + \
                         ". You can ask me your favorite color by saying, " \
                         "what's my favorite color?"
         reprompt_text = "You can ask me your favorite color by saying, " \
