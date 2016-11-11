@@ -1,10 +1,6 @@
 """
-This sample demonstrates a simple skill built with the Amazon Alexa Skills Kit.
-The Intent Schema, Custom Slots, and Sample Utterances for this skill, as well
-as testing instructions are located at http://amzn.to/1LzFrj6
-
-For additional samples, visit the Alexa Skills Kit Getting Started guide at
-http://amzn.to/1LGWsLG
+This skill pulls data from eBird.org and reports the 10 most recent sightings
+for a city.
 """
 
 from __future__ import print_function
@@ -21,8 +17,8 @@ def build_speechlet_response(title, output, reprompt_text, should_end_session):
         },
         'card': {
             'type': 'Simple',
-            'title': "SessionSpeechlet - " + title,
-            'content': "SessionSpeechlet - " + output
+            'title': "Bird Fetcher - " + title,
+            'content': "Bird Fetcher - " + output
         },
         'reprompt': {
             'outputSpeech': {
@@ -45,19 +41,15 @@ def build_response(session_attributes, speechlet_response):
 # --------------- Functions that control the skill's behavior ------------------
 
 def get_welcome_response():
-    """ If we wanted to initialize the session to have some attributes we could
-    add those here
-    """
-
     session_attributes = {}
     card_title = "Welcome"
-    speech_output = "Welcome to the eBird API," \
-                    "Please tell me your location by saying, " \
-                    "birds near Binghamton"
+    speech_output = "Welcome to the Bird Fetcher skill," \
+                    "Please tell me your location of interest by saying, " \
+                    "Birds near Binghamton, "
     # If the user either does not reply to the welcome message or says something
     # that is not understood, they will be prompted again with this text.
-    reprompt_text = "Please tell me your location by saying, " \
-                    "birds near Binghamton."
+    reprompt_text = "Please tell me your location of interest by saying, " \
+                    "Birds near Binghamton, "
     should_end_session = False
     return build_response(session_attributes, build_speechlet_response(
         card_title, speech_output, reprompt_text, should_end_session))
@@ -65,7 +57,7 @@ def get_welcome_response():
 
 def handle_session_end_request():
     card_title = "Session Ended"
-    speech_output = "Thank you for trying eBird. " \
+    speech_output = "Thank you for trying Bird Fetcher. " \
                     "Have a nice day! "
     # Setting this to true ends the session and exits the skill.
     should_end_session = True
@@ -73,94 +65,60 @@ def handle_session_end_request():
         card_title, speech_output, None, should_end_session))
 
 
-def create_favorite_color_attributes(favorite_color):
-    return {"favoriteColor": favorite_color}
-
 def get_bird_data(intent, session):
 
     card_title = intent['name']
     session_attributes = {}
-    should_end_session = False
-
+    should_end_session = True
+    speech_output = "I'm not sure what your city is. Please try again by " \
+                    "saying, birds near Binghamton"
+    
     if 'Location' in intent['slots']:
-        city = intent['slots']['Location']['value']
-        session_attributes = create_favorite_color_attributes(city)
-        mapsURL = "https://maps.googleapis.com/maps/api/geocode/json?address="
-        mapsURL += city
-        locationData = json.load(urllib2.urlopen(mapsURL))
-        latitude = locationData['results'][0]['geometry']['location']['lat']
-        longitude = locationData['results'][0]['geometry']['location']['lng']
-        eBirdURL = "https://ebird.org/ws1.1/data/obs/geo/recent?lng=%f&lat=%f&maxResults=10&fmt=json" % (longitude, latitude)
-        eBirdData = json.load(urllib2.urlopen(eBirdURL))
         
-        birdSightings = ""
-        for sighting in eBirdData:
-            birdSightings += sighting['comName']
-            birdSightings += ", "
-
+        # Try to call Google Maps API and eBird API based on location in intent
+        try:
+            # Get the city from the intent and call the Google Maps API
+            city = intent['slots']['Location']['value']
+            mapsURL = "https://maps.googleapis.com/maps/api/geocode/json?address=%s" % city
+            locationData = json.load(urllib2.urlopen(mapsURL))
             
-        speech_output = "The ten most recent birds seen in " + city + " are " + \
-                        birdSightings + \
-                        ". You can ask me your favorite color by saying, " \
-                        "what's my favorite color?"
-        reprompt_text = "You can ask me your favorite color by saying, " \
-                        "what's my favorite color?"
+            # Grab the latitude and longitude and call the eBird API
+            latitude = locationData['results'][0]['geometry']['location']['lat']
+            longitude = locationData['results'][0]['geometry']['location']['lng']
+            eBirdURL = "https://ebird.org/ws1.1/data/obs/geo/recent?lng=%f&lat=%f&maxResults=10&fmt=json" % (longitude, latitude)
+            eBirdData = json.load(urllib2.urlopen(eBirdURL))
+            
+            birdSightings = ""          # List of 10 recent birds seen
+            lastDate = ""               # Oldest date among the 10 recent bird sightings
+            dataSize = len(eBirdData)   # Grab the number of entries (could possibly be less than 10)
+            
+            for sighting in eBirdData:
+                birdSightings += "%s, " % sighting['comName']
+                dataSize -= 1
+                lastDate = sighting['obsDt'].split()[0]     # Only grab the date, ignore the time
+                
+                # Insert the word 'and' before the last sighting to make it sound better
+                if dataSize == 1:
+                    birdSightings += " and "
+    
+            if len(eBirdData) == 0:
+                speech_output = "There are no recent sightings in %s." % city
+            elif len(eBirdData) == 1:
+                speech_output = "The only recent bird seen since %s in %s is a %s" % (lastDate, city, birdSightings)
+            else:
+                speech_output = "The %s most recent birds seen since %s in %s are %s" % (str(len(eBirdData)), lastDate, city, birdSightings)
+                
+        # Problem with the city name provided        
+        except:
+            should_end_session = False
+            
     else:
-        speech_output = "I'm not sure what your city is. " \
-                        "Please try again."
-        reprompt_text = "I'm not sure what your city is. " \
-                        "You can tell me your city by saying, " \
-                        "birds near Binghamton."
-    return build_response(session_attributes, build_speechlet_response(
-        card_title, speech_output, reprompt_text, should_end_session))
-        
-def set_color_in_session(intent, session):
-    """ Sets the color in the session and prepares the speech to reply to the
-    user.
-    """
-
-    card_title = intent['name']
-    session_attributes = {}
-    should_end_session = False
-
-    if 'Color' in intent['slots']:
-        favorite_color = intent['slots']['Color']['value']
-        session_attributes = create_favorite_color_attributes(favorite_color)
-        speech_output = "I now know your favorite color is " + \
-                        favorite_color + \
-                        ". You can ask me your favorite color by saying, " \
-                        "what's my favorite color?"
-        reprompt_text = "You can ask me your favorite color by saying, " \
-                        "what's my favorite color?"
-    else:
-        speech_output = "I'm not sure what your favorite color is. " \
-                        "Please try again."
-        reprompt_text = "I'm not sure what your favorite color is. " \
-                        "You can tell me your favorite color by saying, " \
-                        "my favorite color is red."
-    return build_response(session_attributes, build_speechlet_response(
-        card_title, speech_output, reprompt_text, should_end_session))
-
-
-def get_color_from_session(intent, session):
-    session_attributes = {}
-    reprompt_text = None
-
-    if session.get('attributes', {}) and "favoriteColor" in session.get('attributes', {}):
-        favorite_color = session['attributes']['favoriteColor']
-        speech_output = "Your favorite color is " + favorite_color + \
-                        ". Goodbye."
-        should_end_session = True
-    else:
-        speech_output = "I'm not sure what your favorite color is. " \
-                        "You can say, my favorite color is red."
         should_end_session = False
-
-    # Setting reprompt_text to None signifies that we do not want to reprompt
-    # the user. If the user does not respond or says something that is not
-    # understood, the session will end.
+        
     return build_response(session_attributes, build_speechlet_response(
-        intent['name'], speech_output, reprompt_text, should_end_session))
+        card_title, speech_output, None, should_end_session))
+        
+
 
 
 # --------------- Events ------------------
@@ -193,14 +151,8 @@ def on_intent(intent_request, session):
     intent_name = intent_request['intent']['name']
 
     # Dispatch to your skill's intent handlers
-    if intent_name == "GetEBird":
+    if intent_name == "GetBirdsWithPlace":
         return get_bird_data(intent, session)
-    elif intent_name == "GetEBirdWithPlace":
-        return get_bird_data(intent, session)
-    elif intent_name == "MyColorIsIntent":
-        return set_color_in_session(intent, session)
-    elif intent_name == "WhatsMyColorIntent":
-        return get_color_from_session(intent, session)
     elif intent_name == "AMAZON.HelpIntent":
         return get_welcome_response()
     elif intent_name == "AMAZON.CancelIntent" or intent_name == "AMAZON.StopIntent":
@@ -227,15 +179,6 @@ def lambda_handler(event, context):
     """
     print("event.session.application.applicationId=" +
           event['session']['application']['applicationId'])
-
-    """
-    Uncomment this if statement and populate with your skill's application ID to
-    prevent someone else from configuring a skill that sends requests to this
-    function.
-    """
-    # if (event['session']['application']['applicationId'] !=
-    #         "amzn1.echo-sdk-ams.app.[unique-value-here]"):
-    #     raise ValueError("Invalid Application ID")
 
     if event['session']['new']:
         on_session_started({'requestId': event['request']['requestId']},
