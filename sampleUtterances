@@ -1,0 +1,52 @@
+UseExamplePhrase for birds near Binghamton
+UseExamplePhrase for recent sightings in Binghamton New York
+
+GetBirdsWithPlace birds in {City} {State}
+GetBirdsWithPlace birds near {City} {State}
+GetBirdsWithPlace birds at {City} {State}
+GetBirdsWithPlace recent birds in {City} {State}
+GetBirdsWithPlace recent birds near {City} {State}
+GetBirdsWithPlace recent birds at {City} {State}
+GetBirdsWithPlace latest birds in {City} {State}
+GetBirdsWithPlace latest birds near {City} {State}
+GetBirdsWithPlace latest birds at {City} {State}
+GetBirdsWithPlace sightings in {City} {State}
+GetBirdsWithPlace sightings near {City} {State}
+GetBirdsWithPlace sightings at {City} {State}
+GetBirdsWithPlace recent sightings in {City} {State}
+GetBirdsWithPlace recent sightings near {City} {State}
+GetBirdsWithPlace recent sightings at {City} {State}
+GetBirdsWithPlace for birds in {City} {State}
+GetBirdsWithPlace for birds near {City} {State}
+GetBirdsWithPlace for birds at {City} {State}
+GetBirdsWithPlace for sightings in {City} {State}
+GetBirdsWithPlace for sightings near {City} {State}
+GetBirdsWithPlace for sightings at {City} {State}
+GetBirdsWithPlace data in {City} {State}
+GetBirdsWithPlace data near {City} {State}
+GetBirdsWithPlace data at {City} {State}
+
+GetBirdsWithPlace birds in {City}
+GetBirdsWithPlace birds near {City}
+GetBirdsWithPlace birds at {City}
+GetBirdsWithPlace recent birds in {City}
+GetBirdsWithPlace recent birds near {City}
+GetBirdsWithPlace recent birds at {City}
+GetBirdsWithPlace latest birds in {City}
+GetBirdsWithPlace latest birds near {City}
+GetBirdsWithPlace latest birds at {City}
+GetBirdsWithPlace sightings in {City}
+GetBirdsWithPlace sightings near {City}
+GetBirdsWithPlace sightings at {City}
+GetBirdsWithPlace recent sightings in {City}
+GetBirdsWithPlace recent sightings near {City}
+GetBirdsWithPlace recent sightings at {City}
+GetBirdsWithPlace for birds in {City}
+GetBirdsWithPlace for birds near {City}
+GetBirdsWithPlace for birds at {City}
+GetBirdsWithPlace for sightings in {City}
+GetBirdsWithPlace for sightings near {City}
+GetBirdsWithPlace for sightings at {City}
+GetBirdsWithPlace data in {City}
+GetBirdsWithPlace data near {City}
+GetBirdsWithPlace data at {City}

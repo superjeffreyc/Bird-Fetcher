@@ -1,0 +1,29 @@
+{
+  "intents": [ 
+    {
+      "intent": "GetBirdsWithPlace",
+	  "slots": [ 
+        {
+          "name": "City", 
+          "type": "AMAZON.US_CITY"
+        },
+        {
+          "name": "State",
+          "type": "AMAZON.US_STATE"
+        }
+      ] 
+    },
+    {
+      "intent": "AMAZON.HelpIntent"
+    },
+    {
+      "intent": "AMAZON.StopIntent"
+    },
+    {
+      "intent": "AMAZON.CancelIntent"
+    },
+    {
+      "intent": "UseExamplePhrase"
+    }
+  ]
+}
