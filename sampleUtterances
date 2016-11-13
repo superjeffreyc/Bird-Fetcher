@@ -1,5 +1,5 @@
 UseExamplePhrase for birds near Binghamton
-UseExamplePhrase for recent sightings in Binghamton New York
+UseExamplePhrase for recent sightings in Binghamton
 
 GetBirdsWithPlace birds in {City} {State}
 GetBirdsWithPlace birds near {City} {State}
