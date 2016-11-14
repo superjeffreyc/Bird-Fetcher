@@ -43,13 +43,13 @@ def build_response(session_attributes, speechlet_response):
 def get_welcome_response():
     session_attributes = {}
     card_title = "Welcome"
-    speech_output = "Welcome to the Bird Fetcher skill, " \
+    speech_output = "Welcome to the Bird Fetcher skill! " \
                     "Please tell me your location of interest by saying, " \
-                    "Birds near Binghamton New York "
+                    "birds near Binghamton New York."
     # If the user either does not reply to the welcome message or says something
     # that is not understood, they will be prompted again with this text.
     reprompt_text = "Please tell me your location of interest by saying, " \
-                    "Birds near Binghamton New York "
+                    "birds near Binghamton New York."
     should_end_session = False
     return build_response(session_attributes, build_speechlet_response(
         card_title, speech_output, reprompt_text, should_end_session))
@@ -76,7 +76,10 @@ def buildBirdListAsString(eBirdData, dataSize):
         if dataSize == 1:
             birdSightings += "and "
     
-    return birdSightings
+    # Replace dangling comma at end with a period
+    birdSightings = birdSightings[:-2] + "."
+    
+    return birdSightings 
 
 # Builds Alexa's Response
 def buildRecentSightingsResponse(eBirdData, city, state, birdSightings):
