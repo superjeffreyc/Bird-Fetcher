@@ -96,26 +96,6 @@ def getStateNameIndex(location):
         if 'administrative_area_level_1' in location['address_components'][i]['types']:
             return i
 
-# Handler for intent "UseExamplePhrase"
-def get_example_data(intent, session):
-
-    card_title = intent['name']
-    session_attributes = {}
-    should_end_session = True
-
-    # Build eBird API call. Set max results returned to 10 and use latitude/longitude for Binghamton, New York
-    eBirdURL = "https://ebird.org/ws1.1/data/obs/geo/recent?lng=-75.91797380000001&lat=42.09868669999999&maxResults=10&fmt=json"
-    eBirdData = json.load(urllib2.urlopen(eBirdURL))
-            
-    # Convert the eBird JSON response to a string of bird names
-    birdSightings = buildBirdListAsString(eBirdData, len(eBirdData))
-
-    # Format Alexa's response based on the number of recent sightings
-    speech_output = buildRecentSightingsResponse(eBirdData, "Binghamton", "New York", birdSightings)
-
-    return build_response(session_attributes, build_speechlet_response(
-        card_title, speech_output, None, should_end_session))
-        
 # Handler for intent "GetBirdsWithPlace"
 def get_bird_data(intent, session):
 
@@ -210,8 +190,6 @@ def on_intent(intent_request, session):
     # Dispatch to your skill's intent handlers
     if intent_name == "GetBirdsWithPlace":
         return get_bird_data(intent, session)
-    elif intent_name == "UseExamplePhrase":
-        return get_example_data(intent, session)
     elif intent_name == "AMAZON.HelpIntent":
         return get_welcome_response()
     elif intent_name == "AMAZON.CancelIntent" or intent_name == "AMAZON.StopIntent":
