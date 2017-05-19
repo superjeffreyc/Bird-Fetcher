@@ -113,32 +113,36 @@ def get_bird_data(intent, session):
         # Get the city from the intent
         city = intent['slots']['City']['value'].title()
 
-        # Build Google Maps API call and replace all spaces with %20 for HTTP GET parameter
-        mapsURL = "https://maps.googleapis.com/maps/api/geocode/json?address=%s" % city.replace(" ", "%20")
-        
-        # Call the Google Maps API to get the latitude and longitude of the city
-        locationData = json.load(urllib2.urlopen(mapsURL))
-
-        # If there are multiple cities with the same name, find the one with the state that the user provided
-        for location in locationData['results']:
-            stateIndex = getStateNameIndex(location)
+        try:
+            # Build Google Maps API call and replace all spaces with %20 for HTTP GET parameter
+            mapsURL = "https://maps.googleapis.com/maps/api/geocode/json?address=%s" % city.replace(" ", "%20")
             
-            # Grab the latitude and longitude from the Google Maps API to pass to the eBird API
-            if location['address_components'][stateIndex]['long_name'] == intent['slots']['State']['value'].title():
-                state = location['address_components'][stateIndex]['long_name']
-                latitude = location['geometry']['location']['lat']
-                longitude = location['geometry']['location']['lng']
-                break
-
-        # Build eBird API call. Set max results returned to 10.
-        eBirdURL = "https://ebird.org/ws1.1/data/obs/geo/recent?lng=%f&lat=%f&maxResults=10&fmt=json" % (longitude, latitude)
-        eBirdData = json.load(urllib2.urlopen(eBirdURL))
-        
-        # Convert the eBird JSON response to a string of bird names
-        birdSightings = buildBirdListAsString(eBirdData, len(eBirdData))
-
-        # Format Alexa's response based on the number of recent sightings
-        speech_output = buildRecentSightingsResponse(eBirdData, city, state, birdSightings)
+            # Call the Google Maps API to get the latitude and longitude of the city
+            locationData = json.load(urllib2.urlopen(mapsURL))
+    
+            # If there are multiple cities with the same name, find the one with the state that the user provided
+            for location in locationData['results']:
+                stateIndex = getStateNameIndex(location)
+                
+                # Grab the latitude and longitude from the Google Maps API to pass to the eBird API
+                if location['address_components'][stateIndex]['long_name'] == intent['slots']['State']['value'].title():
+                    state = location['address_components'][stateIndex]['long_name']
+                    latitude = location['geometry']['location']['lat']
+                    longitude = location['geometry']['location']['lng']
+                    break
+    
+            # Build eBird API call. Set max results returned to 10.
+            eBirdURL = "https://ebird.org/ws1.1/data/obs/geo/recent?lng=%f&lat=%f&maxResults=10&fmt=json" % (longitude, latitude)
+            eBirdData = json.load(urllib2.urlopen(eBirdURL))
+            
+            # Convert the eBird JSON response to a string of bird names
+            birdSightings = buildBirdListAsString(eBirdData, len(eBirdData))
+    
+            # Format Alexa's response based on the number of recent sightings
+            speech_output = buildRecentSightingsResponse(eBirdData, city, state, birdSightings)
+            
+        except:
+            should_end_session = False
             
     else:
         should_end_session = False
