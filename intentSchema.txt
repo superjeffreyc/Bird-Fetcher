@@ -1,26 +1,104 @@
 {
-  "intents": [ 
+  "intents": [
     {
-      "intent": "GetBirdsWithPlace",
-	  "slots": [ 
+      "name": "AMAZON.CancelIntent",
+      "samples": []
+    },
+    {
+      "name": "AMAZON.HelpIntent",
+      "samples": []
+    },
+    {
+      "name": "AMAZON.StopIntent",
+      "samples": []
+    },
+    {
+      "name": "GetBirdsWithPlace",
+      "samples": [
+        "birds near {City} {State}"
+      ],
+      "slots": [
         {
-          "name": "City", 
-          "type": "AMAZON.US_CITY"
+          "name": "City",
+          "type": "AMAZON.US_CITY",
+          "samples": [
+            "birds near {City} {State}"
+          ]
         },
         {
           "name": "State",
-          "type": "AMAZON.US_STATE"
+          "type": "AMAZON.US_STATE",
+          "samples": [
+            "birds near {City} {State}"
+          ]
         }
-      ] 
-    },
-    {
-      "intent": "AMAZON.HelpIntent"
-    },
-    {
-      "intent": "AMAZON.StopIntent"
-    },
-    {
-      "intent": "AMAZON.CancelIntent"
+      ]
     }
-  ]
+  ],
+  "types": [
+    {
+      "name": "AMAZON.US_CITY",
+      "values": [
+        {
+          "name": {
+            "value": "Binghamton"
+          }
+        }
+      ]
+    }
+  ],
+  "prompts": [
+    {
+      "id": "Elicit.Intent-GetBirdsWithPlace.IntentSlot-City",
+      "promptVersion": "1.0",
+      "definitionVersion": "1.0",
+      "variations": [
+        {
+          "type": "PlainText",
+          "value": "Please include your city and state of interest."
+        }
+      ]
+    },
+    {
+      "id": "Elicit.Intent-GetBirdsWithPlace.IntentSlot-State",
+      "promptVersion": "1.0",
+      "definitionVersion": "1.0",
+      "variations": [
+        {
+          "type": "PlainText",
+          "value": "Please include your city and state of interest."
+        }
+      ]
+    }
+  ],
+  "dialog": {
+    "version": "1.0",
+    "intents": [
+      {
+        "name": "GetBirdsWithPlace",
+        "confirmationRequired": false,
+        "prompts": {},
+        "slots": [
+          {
+            "name": "City",
+            "type": "AMAZON.US_CITY",
+            "elicitationRequired": true,
+            "confirmationRequired": false,
+            "prompts": {
+              "elicit": "Elicit.Intent-GetBirdsWithPlace.IntentSlot-City"
+            }
+          },
+          {
+            "name": "State",
+            "type": "AMAZON.US_STATE",
+            "elicitationRequired": true,
+            "confirmationRequired": false,
+            "prompts": {
+              "elicit": "Elicit.Intent-GetBirdsWithPlace.IntentSlot-State"
+            }
+          }
+        ]
+      }
+    ]
+  }
 }
