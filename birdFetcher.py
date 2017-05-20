@@ -45,10 +45,10 @@ def get_welcome_response():
     card_title = "Welcome"
     speech_output = "Welcome to the Bird Fetcher skill! " \
                     "Please tell me your location of interest by saying, " \
-                    "birds near Binghamton New York."
+                    "birds near city, state."
     # If the user either does not reply to the welcome message or says something
     # that is not understood, they will be prompted again with this text.
-    reprompt_text = "Please tell me your location of interest by saying, " \
+    reprompt_text = "Please tell me your location of interest. For example, say, " \
                     "birds near Binghamton New York."
     should_end_session = False
     return build_response(session_attributes, build_speechlet_response(
@@ -105,8 +105,8 @@ def get_bird_data(intent, session):
     card_title = intent['name']
     session_attributes = {}
     should_end_session = True
-    speech_output = "I'm not sure what your city is. Please try again by " \
-                    "saying, birds near Binghamton New York"
+    speech_output = "I'm not sure what your city or state is. Please try again by " \
+                    "saying, birds near Binghamton New York."
     
     if 'City' in intent['slots'] and 'value' in intent['slots']['City'] and 'State' in intent['slots'] and 'value' in intent['slots']['State']:
 
