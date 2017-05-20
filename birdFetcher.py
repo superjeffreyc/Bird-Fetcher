@@ -148,6 +148,7 @@ def get_bird_data(intent, session):
         should_end_session = False
     
     # Print to CloudWatch log
+    print(intent)
     print(speech_output)
     
     return build_response(session_attributes, build_speechlet_response(
