@@ -69,7 +69,7 @@ def buildBirdListAsString(eBirdData, dataSize):
     birdSightings = ""
     
     for sighting in eBirdData:
-        birdSightings += "%s, " % sighting['comName']
+        birdSightings += "{}, ".format(sighting['comName'])
 
         # Insert the word 'and' before the last sighting for proper grammar
         dataSize -= 1
@@ -84,14 +84,14 @@ def buildBirdListAsString(eBirdData, dataSize):
 # Builds Alexa's Response
 def buildRecentSightingsResponse(eBirdData, city, state, birdSightings):
     if len(eBirdData) == 0:
-        return "There are no recent sightings for %s %s" % (city, state)
+        return "There are no recent sightings for {} {}".format(city, state)
     else:
         lastDate = eBirdData[-1]['obsDt'].split()[0]    # Only grab the date, ignore the time
         
         if len(eBirdData) == 1:
-            return "The only recent bird seen since %s in %s %s, is a %s" % (lastDate, city, state, birdSightings)
+            return "The only recent bird seen since {} in {} {}, is a {}".format(lastDate, city, state, birdSightings)
         else:
-            return "The %s most recent birds seen since %s in %s %s, are %s" % (len(eBirdData), lastDate, city, state, birdSightings)
+            return "The {} most recent birds seen since {} in {} {}, are {}".format(len(eBirdData), lastDate, city, state, birdSightings)
 
 # Gets the index in the Google Maps JSON response that contains the state name
 def getStateNameIndex(location):
@@ -106,16 +106,17 @@ def get_bird_data(intent, session):
     session_attributes = {}
     should_end_session = True
     speech_output = "I'm not sure what your city or state is. Please try again by " \
-                    "saying, birds near Binghamton New York."
+                    "saying, birds near city, state."
     
     if 'City' in intent['slots'] and 'value' in intent['slots']['City'] and 'State' in intent['slots'] and 'value' in intent['slots']['State']:
 
-        # Get the city from the intent
+        # Get the city and state from the intent
         city = intent['slots']['City']['value'].title()
+        state = intent['slots']['State']['value'].title()
 
         try:
             # Build Google Maps API call and replace all spaces with %20 for HTTP GET parameter
-            mapsURL = "https://maps.googleapis.com/maps/api/geocode/json?address=%s" % city.replace(" ", "%20")
+            mapsURL = "https://maps.googleapis.com/maps/api/geocode/json?address={},{}".format(city.replace(" ", "%20"), state.replace(" ", "%20"))
             
             # Call the Google Maps API to get the latitude and longitude of the city
             locationData = json.load(urllib2.urlopen(mapsURL))
@@ -126,13 +127,12 @@ def get_bird_data(intent, session):
                 
                 # Grab the latitude and longitude from the Google Maps API to pass to the eBird API
                 if location['address_components'][stateIndex]['long_name'] == intent['slots']['State']['value'].title():
-                    state = location['address_components'][stateIndex]['long_name']
                     latitude = location['geometry']['location']['lat']
                     longitude = location['geometry']['location']['lng']
                     break
     
             # Build eBird API call. Set max results returned to 10.
-            eBirdURL = "https://ebird.org/ws1.1/data/obs/geo/recent?lng=%f&lat=%f&maxResults=10&fmt=json" % (longitude, latitude)
+            eBirdURL = "https://ebird.org/ws1.1/data/obs/geo/recent?lat={}&lng={}&maxResults=10&fmt=json".format(latitude, longitude)
             eBirdData = json.load(urllib2.urlopen(eBirdURL))
             
             # Convert the eBird JSON response to a string of bird names
@@ -146,7 +146,9 @@ def get_bird_data(intent, session):
             
     else:
         should_end_session = False
-    
+        speech_output = "Please tell me your city and state of interest. For example, try saying, " \
+                    "birds near Binghamton New York."
+        
     # Print to CloudWatch log
     print(intent)
     print(speech_output)
