@@ -9,6 +9,6 @@ Alexa Skill for retrieving information about birds near you using the eBird API.
 - Just say, "Alexa, enable Bird Fetcher."
 
 ## How to enable through the Alexa App
-- Open the Alex App and go to the skills page.
+- Open the Alexa App and go to the skills page.
 - Search for the "Bird Fetcher" skill.
 - Click the 'Enable' button.
